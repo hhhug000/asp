@@ -1,7 +1,7 @@
 """game object class and component system"""
 
 
-from asp.component import Component
+from asp.components import Component
 
 
 class GameObject:
