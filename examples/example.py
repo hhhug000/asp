@@ -2,6 +2,7 @@
 
 from asp.engine import Engine
 from asp.components import Component
+from asp.components import Camera
 from asp.gameobject import GameObject
 from asp.components import Transform
 from asp.types import Vector3
@@ -32,14 +33,34 @@ class SpinningThing(GameObject):
 		self.add_component(SpinComponent())
 
 
+class CameraRig(GameObject):
+	"""Game object that owns a camera component and transform."""
+
+	def __init__(self, engine: Engine, position: Vector3, rotation: Vector3):
+		super().__init__(engine)
+		transform = self.add_component(Transform())
+		transform.set_position(position)
+		transform.set_rotation(rotation)
+		self.camera = self.add_component(Camera())
+
+
 def main() -> None:
 	engine = Engine()
 	engine.disableMouse()
-	engine.camera.setPos(0, -20, 3)
-	engine.camera.lookAt(0, 8, 0)
 	engine.setBackgroundColor(0.08, 0.1, 0.16, 1.0)
 
 	engine.all_entities.append(SpinningThing(engine))
+	primary_camera = CameraRig(engine, Vector3(0, -20, 3), Vector3(0, 0, 0))
+	secondary_camera = CameraRig(engine, Vector3(14, -16, 7), Vector3(20, 0, 0))
+	engine.all_entities.append(primary_camera)
+	engine.all_entities.append(secondary_camera)
+	primary_camera.camera.activate()
+
+	def swap_camera(task):
+		secondary_camera.camera.activate()
+		return task.done
+
+	engine.taskMgr.doMethodLater(3.0, swap_camera, "SwapCamera")
 
 	# Stop automatically so the example is easy to run and verify.
 	engine.taskMgr.doMethodLater(6.0, lambda task: engine.userExit(), "StopDemo")
