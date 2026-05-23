@@ -9,6 +9,7 @@ from direct.showbase.ShowBase import ShowBase
 from panda3d.core import ClockObject
 
 from asp.components import Camera, Transform
+from asp.input import InputHandler
 from asp.gameobject import GameObject
 
 # create clock
@@ -22,6 +23,7 @@ class Engine(ShowBase):
         self.running = True
         self.all_entities: list[GameObject] = []
         self.active_camera: Optional[Camera] = None
+        self.input = InputHandler(self)
 
         # link the engine loop func to run every frame
         self.taskMgr.add(self._engine_loop, "MainEngineLoop")
@@ -35,6 +37,7 @@ class Engine(ShowBase):
             entity._update_components(dt)
 
         self._sync_active_camera()
+        self.input.update()
             
         return task.cont # run again next frame
 
