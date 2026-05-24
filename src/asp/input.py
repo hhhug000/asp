@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Callable, DefaultDict, Dict, Set
 
+from asp.types import Vector2
+
 
 class _Keys:
 	"""Common Panda3D key names exposed as a simple namespace."""
@@ -89,6 +91,10 @@ class InputHandler:
 		self._held_keys: Set[str] = set()
 		self._pressed_keys: Set[str] = set()
 		self._released_keys: Set[str] = set()
+		self._mouse_position: Vector2 | None = None
+		self._previous_mouse_position: Vector2 | None = None
+		self._mouse_delta: Vector2 = Vector2()
+		self._mouse_state_sampled = False
 		self._key_bindings: DefaultDict[str, Set[Callable[[], None]]] = defaultdict(set)
 		self._key_up_bindings: DefaultDict[str, Set[Callable[[], None]]] = defaultdict(set)
 		self._action_bindings: DefaultDict[str, Set[str]] = defaultdict(set)
@@ -101,6 +107,7 @@ class InputHandler:
 		"""Clear transient state at the end of a frame."""
 		self._pressed_keys.clear()
 		self._released_keys.clear()
+		self._mouse_state_sampled = False
 
 	def bind_key_down(self, key: str, callback: Callable[[], None]):
 		"""Call a function every time a key is pressed."""
@@ -141,6 +148,48 @@ class InputHandler:
 		"""Return True while the key remains pressed."""
 		return key in self._held_keys
 
+	def mouse_down(self, button: str) -> bool:
+		"""Compatibility alias for mouse button press detection."""
+		return self.is_down(button)
+
+	def mouse_released(self, button: str) -> bool:
+		"""Compatibility alias for mouse button release detection."""
+		return self.is_released(button)
+
+	def mouse_held(self, button: str) -> bool:
+		"""Compatibility alias for mouse button hold detection."""
+		return self.is_held(button)
+
+	def has_mouse(self) -> bool:
+		"""Return True when the engine has a valid mouse position."""
+		return self.engine.mouseWatcherNode.hasMouse()
+
+	def mouse_position(self) -> Vector2 | None:
+		"""Return the current mouse position as a Vector2."""
+		self._update_mouse_state()
+		return self._mouse_position
+
+	def mouse_delta(self) -> Vector2:
+		"""Return the mouse movement since the previous frame."""
+		self._update_mouse_state()
+		return self._mouse_delta
+
+	def mouse_x(self) -> float | None:
+		"""Return the current mouse X position, if available."""
+		position = self._mouse_position
+		if position is None:
+			return None
+
+		return position[0]
+
+	def mouse_y(self) -> float | None:
+		"""Return the current mouse Y position, if available."""
+		position = self._mouse_position
+		if position is None:
+			return None
+
+		return position[1]
+
 	def action_down(self, action: str) -> bool:
 		"""Return True when any key bound to the action was pressed this frame."""
 		for key in self._action_bindings.get(action, ()):
@@ -176,6 +225,32 @@ class InputHandler:
 	def _register_default_keys(self):
 		for key in self.DEFAULT_KEYS:
 			self._ensure_key_hook(key)
+
+	def _update_mouse_state(self):
+		if self._mouse_state_sampled:
+			return
+
+		if not self.engine.mouseWatcherNode.hasMouse():
+			self._mouse_position = None
+			self._mouse_delta = Vector2()
+			self._mouse_state_sampled = True
+			return
+
+		mouse_x = self.engine.mouseWatcherNode.getMouseX()
+		mouse_y = self.engine.mouseWatcherNode.getMouseY()
+		current_position = Vector2(mouse_x, mouse_y)
+
+		if self._previous_mouse_position is None:
+			self._mouse_delta = Vector2()
+		else:
+			self._mouse_delta = Vector2(
+				mouse_x - self._previous_mouse_position.x,
+				mouse_y - self._previous_mouse_position.y,
+			)
+
+		self._previous_mouse_position = Vector2(mouse_x, mouse_y)
+		self._mouse_position = current_position
+		self._mouse_state_sampled = True
 
 	def _handle_key_down(self, key: str):
 		if key in self._held_keys:
