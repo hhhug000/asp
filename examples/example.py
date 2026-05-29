@@ -76,7 +76,7 @@ class CameraControl(Component):
 
 
 def main() -> None:
-	engine = Engine()
+	engine = Engine(title="asp example")
 	engine.disableMouse()
 	engine.setBackgroundColor(0.08, 0.1, 0.16, 1.0)
 

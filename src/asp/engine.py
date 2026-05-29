@@ -6,7 +6,7 @@ for the game loop scene management and asset handling.
 from typing import Optional
 
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import ClockObject
+from panda3d.core import ClockObject, WindowProperties
 
 from asp.components import Camera, Transform
 from asp.input import InputHandler
@@ -16,8 +16,12 @@ from asp.gameobject import GameObject
 globalClock = ClockObject.get_global_clock()
 
 class Engine(ShowBase):
-    def __init__(self):
+    def __init__(self, title: str = "asp"):
         super().__init__()
+
+        window_properties = WindowProperties()
+        window_properties.setTitle(title)
+        self.win.requestProperties(window_properties)
         
         # setup engine state
         self.running = True
