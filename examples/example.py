@@ -3,6 +3,7 @@
 from asp.engine import Engine
 from asp.components import Component
 from asp.components import Camera
+from asp.components import Model
 from asp.gameobject import GameObject
 from asp.components import Transform
 from asp.input import keys
@@ -26,8 +27,7 @@ class SpinningThing(GameObject):
 
 	def __init__(self, engine: Engine):
 		super().__init__(engine)
-		self.model = engine.loader.loadModel("models/smiley")
-		self.model.reparentTo(engine.render)
+		self.add_component(Model("models/smiley", "maps/smiley.rgb"))
 		transform = self.add_component(Transform())
 		transform.set_position(Vector3(0, 8, 0))
 		transform.set_scale(Vector3(1.5, 1.5, 1.5))
