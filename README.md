@@ -109,11 +109,43 @@ The main example demonstrates a spinning object and camera control. The dedicate
 
 ## Project Layout
 
-- `src/asp/engine.py` - main engine loop and window setup
-- `src/asp/gameobject.py` - scene object container and component management
-- `src/asp/input.py` - keyboard and mouse input handling
-- `src/asp/components/` - component implementations
-- `examples/` - runnable demos
+```text
+asp/
+├── LICENSE
+├── README.md
+├── pyproject.toml
+├── examples/
+│   ├── example.py
+│   ├── input_status_example.py
+│   ├── physics_example.py
+│   └── task_scheduler_example.py
+└── src/
+    └── asp/
+        ├── __init__.py
+        ├── engine.py
+        ├── gameobject.py
+        ├── input.py
+        ├── assets/
+        │   └── __init__.py
+        ├── components/
+        │   ├── __init__.py
+        │   ├── camera.py
+        │   ├── collider.py
+        │   ├── component.py
+        │   ├── model.py
+        │   ├── physics.py
+        │   ├── task_scheduler.py
+        │   └── transform.py
+        ├── core/
+        │   ├── __init__.py
+        │   ├── components.py
+        │   ├── logic.py
+        │   └── objects.py
+        ├── editor/
+        │   └── __init__.py
+        └── types/
+            └── __init__.py
+```
 
 ## License
 
